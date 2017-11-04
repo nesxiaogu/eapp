@@ -1,0 +1,38 @@
+body,
+html
+  font-weight: 200
+  line-height: 1
+  font-family: 'PingFang SC', 'STHeitiSC-Light', 'Helvetica-Light', arial, sans-serif
+
+.clearfix
+  &::after
+    display: block
+    content: '.'
+    height: 0
+    line-height: 0 /* 有必要设，有的时候不设会撑大盒子 */
+    clear: both
+    visibility: hidden
+
+@media(-webkit-device-pixel-ratio: 1.5), (device-pixel-ratio: 1.5)
+  .border-1px
+    &::after,
+    &::before
+      -webkit-transform: scaleY(0.7)
+      transform: scaleY(0.7)
+      -ms-transform: scaleY(0.7)
+
+@media(-webkit-device-pixel-ratio: 2), (device-pixel-ratio: 2)
+  .border-1px
+    &::after,
+    &::before
+      -webkit-transform: scaleY(0.5)
+      transform: scaleY(0.5)
+      -ms-transform: scaleY(0.5)
+
+@media(-webkit-device-pixel-ratio: 3), (device-pixel-ratio: 3)
+  .border-1px
+    &::after,
+    &::before
+      -webkit-transform: scaleY(0.3)
+      transform: scaleY(0.3)
+      -ms-transform: scaleY(0.3)
