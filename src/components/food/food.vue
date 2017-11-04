@@ -36,7 +36,29 @@
         <v-split></v-split>
         <div class="rating">
           <div class="title">商品评价</div>
-          <v-ratingSelect></v-ratingSelect>
+          <!--评价类型选择组件-->
+          <v-ratingSelect
+            :select-type="selectType"
+            :only-content="onlyContent"
+            :desc="desc"
+            :ratings="food.ratings"
+          ></v-ratingSelect>
+          <div class="rating-wrapper">
+            <ul v-if="food.ratings && food.ratings.length">
+              <li v-show="needShow(rating.rateType, rating.text)" class="rating-list" v-for="rating in food.ratings">
+                <div class="user">
+                  <span class="name">{{rating.username}}</span>
+                  <img class="avatar" width="12" height="12" :src="rating.avatar">
+                </div>
+                <div class="time">{{rating.rateTime}}</div>
+                <p class="text">
+                  <i :class="{'icon-thumb_up': rating.rateType === 0, 'icon-thumb_down': rating.rateType === 1}"></i>
+                  <span>{{rating.text}}</span>
+                </p>
+              </li>
+            </ul>
+            <div v-else="!food.ratings && !food.ratings.length"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -50,9 +72,26 @@
   import Vue from 'vue'
   import split from '../split/split.vue'
   import ratingSelect from '../ratingSelect/ratingSelect.vue'
+  // 评价类型
+  const POSITIVE = 0;
+  const NEGATIVE = 1;
+  const ALL = 2;
   export default {
     data () {
-      return {}
+      return {
+        selectType: { // vue2.0子组件不能对props里面的属性进行修改
+          // 这里使用对象的引用特性进行修改 修改同一个内存地址的值
+          type: ALL
+        },
+        onlyContent: {
+          only: true
+        },
+        desc: {
+          all: '全部',
+          positive: '推荐',
+          negative: '吐槽'
+        }
+      }
     },
     computed: mapGetters([
       'foodShow'
@@ -64,6 +103,9 @@
       ]),
       show() {
         this.showFood();
+        // 初始化状态值 很多商品所以每次进入都要初始化 保证打开是初始化状态
+        this.selectType.type = ALL; // 评论类型
+        this.onlyContent.only = false; // 只看有内容的
         this.$nextTick(() => {
           if(this.scroll) {
             this.scroll.refresh();
@@ -79,6 +121,16 @@
           this.Event.$emit('cart.add', event.target);
           Vue.set(this.food, 'count', 1);
         }
+      },
+      needShow(type, text) { // 处理显示的评论的类别
+        if(this.onlyContent.only && !text) { // 只显示有评论的并且评论为空
+          return false;
+        }
+        if(this.selectType.type === ALL) { // 显示所有
+          return true;
+        }else {
+          return type === this.selectType.type;
+        }
       }
     },
     props: {
@@ -88,6 +140,19 @@
     },
     created() {
       this.Event.$emit('show', this.show);
+      // 接收ratingSelect传来的数据
+      this.Event.$on('selectType.change', (type) => {
+        // this.selectType.type = type;
+        this.$nextTick(() => {
+          this.scroll.refresh(); // better-scroll刷新
+        })
+      });
+      this.Event.$on('onlyContent.change', (only) => {
+        // this.onlyContent.only = only;
+        this.$nextTick(() => {
+          this.scroll.refresh(); // better-scroll刷新
+        })
+      });
     },
     components: {
       vCartControl: cartControl,
@@ -98,6 +163,7 @@
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
+  @import '../../common/stylus/mixin.styl'
   .food
     position: fixed
     top: 0
@@ -202,9 +268,46 @@
         font-size: 12px
         color: rgb(77, 85, 93)
     .rating
-      padding: 18px
+      padding-top: 18px
       .title
+        margin-left: 18px
         color: rgb(7, 17, 27)
         font-size: 14px
         line-height: 14px
+      .rating-wrapper
+        padding: 0 18px
+        .rating-list
+          position: relative
+          padding: 16px 0
+          color: rgb(147, 153, 159)
+          border-1px-bottom(rgba(7, 17, 27, .1))
+          .user
+            position: absolute
+            top: 16px
+            right: 0
+            font-size: 0
+            .name
+              font-size: 10px
+              line-height: 12px
+            .avatar
+              margin-left: 6px
+              vertical-align: top
+              border-radius: 50%
+          .time
+            font-size: 10px
+            line-height: 12px
+          .text
+            margin-top: 6px
+            font-size: 0
+            .icon-thumb_up,
+            .icon-thumb_down
+              line-height: 16px
+              font-size: 12px
+            .icon-thumb_up
+              color: rgb(0, 160, 220)
+            span
+              margin-left: 4px
+              line-height: 16px
+              font-size: 12px
+              color: rgb(7, 17, 27)
 </style>
