@@ -6,12 +6,18 @@ import router from './router';
 import store from './store';
 import VueResource from 'vue-resource';
 import './common/stylus/index.styl';
+import filter from './common/js/filter'
 
 Vue.config.productionTip = false;
 
 Vue.use(VueResource);
 
 Vue.prototype.Event = new Vue(); // 单一事件处理通信
+
+// 过滤器处理 注册所有过滤器
+Object.keys(filter).forEach((attr) => {
+  Vue.filter(attr, filter[attr]);
+});
 
 // 打印控制台
 console.log('%cHello Vue 😊', 'color: #f60; font-size: 30px; font-family: SimSun;')

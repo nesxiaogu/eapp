@@ -44,20 +44,20 @@
             :ratings="food.ratings"
           ></v-ratingSelect>
           <div class="rating-wrapper">
-            <ul v-if="food.ratings && food.ratings.length">
+            <ul v-show="food.ratings && food.ratings.length">
               <li v-show="needShow(rating.rateType, rating.text)" class="rating-list" v-for="rating in food.ratings">
                 <div class="user">
                   <span class="name">{{rating.username}}</span>
                   <img class="avatar" width="12" height="12" :src="rating.avatar">
                 </div>
-                <div class="time">{{rating.rateTime}}</div>
+                <div class="time">{{rating.rateTime | formatTime("yyyy-MM-dd hh:mm")}}</div>
                 <p class="text">
                   <i :class="{'icon-thumb_up': rating.rateType === 0, 'icon-thumb_down': rating.rateType === 1}"></i>
                   <span>{{rating.text}}</span>
                 </p>
               </li>
             </ul>
-            <div v-else="!food.ratings && !food.ratings.length"></div>
+            <div class="no-rating" v-show="!food.ratings || !food.ratings.length">暂无评价</div>
           </div>
         </div>
       </div>
@@ -153,6 +153,12 @@
           this.scroll.refresh(); // better-scroll刷新
         })
       });
+    },
+    filters: { // 组件内部的过滤器
+      // 如果全局过滤器与内部过滤器名称相同，则使用的是内部的过滤器
+//      formatTime(value) {
+//        return 'hahah';
+//      }
     },
     components: {
       vCartControl: cartControl,
@@ -310,4 +316,8 @@
               line-height: 16px
               font-size: 12px
               color: rgb(7, 17, 27)
+        .no-rating
+          padding: 16px 0
+          font-size: 12px
+          color: rgb(147, 153, 159)
 </style>
