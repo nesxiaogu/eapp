@@ -44,9 +44,9 @@
             <!--</div>-->
             <v-detialTitle :title="'优惠信息'" class="title"></v-detialTitle>
             <ul v-if="seller.supports" class="support">
-              <li v-for="(item, index) in seller.supports" class="support-item">
-                <span class="icon" :class="imgMap[seller.supports[index].type]"></span>
-                <span class="text">{{seller.supports[index].description}}</span>
+              <li v-for="item in seller.supports" class="support-item">
+                <span class="icon" :class="imgMap[item.type]"></span>
+                <span class="text">{{item.description}}</span>
               </li>
             </ul>
             <v-detialTitle :title="'商家公告'" class="title"></v-detialTitle>
