@@ -35,14 +35,14 @@
         if(event._constructed) {
           this.selectType.type = type;
           // 发送改变给food组件
-          this.Event.$emit('selectType.change', type);
+          // this.$emit('selectType.change', type);
         }
       },
       toggleContent(event) {
         if(event._constructed) {
           this.onlyContent.only = !this.onlyContent.only;
           // 发送改变给food组件
-          this.Event.$emit('onlyContent.change', this.only);
+          // this.$emit('onlyContent.change', this.only);
         }
       }
     },
@@ -109,7 +109,7 @@
         padding: 8px 12px
         line-height: 16px
         font-size: 12px
-        color: rgb(7, 85, 93)
+        color: rgb(77, 85, 93)
         border-radius: 1px
         .count
           font-size: 8px

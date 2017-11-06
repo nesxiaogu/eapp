@@ -141,24 +141,45 @@
     created() {
       this.Event.$emit('show', this.show);
       // 接收ratingSelect传来的数据
-      this.Event.$on('selectType.change', (type) => {
-        // this.selectType.type = type;
-        this.$nextTick(() => {
-          this.scroll.refresh(); // better-scroll刷新
-        })
-      });
-      this.Event.$on('onlyContent.change', (only) => {
-        // this.onlyContent.only = only;
-        this.$nextTick(() => {
-          this.scroll.refresh(); // better-scroll刷新
-        })
-      });
+      // 直接这样回调会出问题的，这样导致从goods组件切换到ratings组件，使用ratingSelect组件会触发这里的回调
+      // 第一造成代码执行消耗，第二因找不到this.scroll报错
+      // 原因是因为Event事件市全局的切换组件之后并没有销毁
+//      this.Event.$on('selectType.change', (type) => {
+//        // this.selectType.type = type;
+//        this.$nextTick(() => {
+//          this.scroll && this.scroll.refresh(); // better-scroll刷新
+//        });
+//      });
+//      this.Event.$on('onlyContent.change', (only) => {
+//        // this.onlyContent.only = only;
+//        this.$nextTick(() => {
+//          this.scroll && this.scroll.refresh(); // better-scroll刷新
+//        });
+//      });
     },
     filters: { // 组件内部的过滤器
       // 如果全局过滤器与内部过滤器名称相同，则使用的是内部的过滤器
 //      formatTime(value) {
 //        return 'hahah';
 //      }
+    },
+    watch: {
+      selectType: {
+        deep: true,
+        handler() {
+          this.$nextTick(() => {
+            this.scroll.refresh();
+          });
+        }
+      },
+      onlyContent: {
+        deep: true,
+        handler() {
+          this.$nextTick(() => {
+            this.scroll.refresh();
+          });
+        }
+      }
     },
     components: {
       vCartControl: cartControl,

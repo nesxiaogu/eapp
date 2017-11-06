@@ -77,7 +77,7 @@
         &.off
           bg-img('star36_off')
         & + .star-item
-          margin-left: 16px
+          margin-left: 6px
     &.star-24
       .star-item
         width: 10px
