@@ -31,6 +31,10 @@
               </div>
             </li>
           </ul>
+          <div class="favorite" @click="toggleFavorite">
+            <i class="icon-favorite" :class="{'favorited': favorite}"></i>
+            <div class="text">{{favoriteText}}</div>
+          </div>
         </div>
         <v-split></v-split>
         <div class="bulletin">
@@ -46,6 +50,23 @@
           </ul>
         </div>
         <v-split></v-split>
+        <div class="pics">
+          <div class="title">商家实景</div>
+          <div class="pics-wrapper" ref="picsWrapper">
+            <ul class="pics-list" ref="picsList">
+              <li class="pics-item" v-for="pic in seller.pics">
+                <img width="120" height="90" :src="pic">
+              </li>
+            </ul>
+          </div>
+        </div>
+        <v-split></v-split>
+        <div class="info">
+          <div class="title">商家信息</div>
+          <ul class="info-item-wrapper">
+            <li class="info-item border-1px" v-for="info in seller.infos">{{info}}</li>
+          </ul>
+        </div>
       </div>
     </div>
 </template>
@@ -54,12 +75,22 @@
   import star from 'components/star/star'
   import split from 'components/split/split'
   import BScroll from 'better-scroll'
+  import {saveToLocal, loadFromLocal} from 'common/js/store'
   export default {
     name: 'seller',
     data () {
       return {
-        imgMap: ['decrease', 'discount', 'special', 'invoice', 'guarantee']
+        imgMap: ['decrease', 'discount', 'special', 'invoice', 'guarantee'],
+        favorite: loadFromLocal(this.seller.id, 'favorite', false)
       };
+    },
+    methods: {
+      toggleFavorite(event) {
+        if(event._constructed) {
+          this.favorite = !this.favorite;
+          saveToLocal(this.seller.id, 'favorite', this.favorite);
+        }
+      }
     },
     props: {
       seller: {
@@ -70,11 +101,38 @@
       vStar: star,
       vSplit: split
     },
+    computed: {
+      favoriteText() {
+        return this.favorite ? '已收藏' : '收藏'
+      }
+    },
     mounted() {
       this.Event.$on('ready', () => {
-        this.scroll = new BScroll(this.$refs.seller, {
-          click: true
-        });
+        if(this.scroll) {
+          this.scroll.refresh();
+        }else {
+          this.scroll = new BScroll(this.$refs.seller, {
+            click: true
+          });
+        }
+
+        // 计算存放图片盒子的宽度
+        if(this.seller.pics) { // 有商家图片
+          let picWidth = 120;
+          let margin = 6;
+          let width = (picWidth + margin) * this.seller.pics.length - 6;
+          this.$refs.picsList.style.width = width + 'px';
+          this.$nextTick(() => {
+            if(this.picScroll) {
+              this.picScroll.refresh();
+            }else {
+              this.picScroll = new BScroll(this.$refs.picsWrapper, {
+                scrollX: true,
+                enterPassthrough: 'vertical'
+              });
+            }
+          });
+        }
       });
     }
   };
@@ -91,6 +149,7 @@
     overflow: hidden
     .seller-content
       .overview
+        position: relative
         padding: 18px
         > .title
           line-height: 14px
@@ -134,6 +193,25 @@
                 font-size: 24px
               .unit
                 font-size: 10px
+        // 收藏
+        .favorite
+          position: absolute
+          top: 16px
+          right: 16px
+          width: 36px
+          text-align: center
+          font-size: 0
+          .icon-favorite
+            line-height: 24px
+            font-size: 24px
+            color: rgb(147, 153, 159)
+            &.favorited
+              color: rgb(240, 20, 20)
+          .text
+            margin-top: 4px
+            line-height: 10px
+            font-size: 10px
+            color: rgb(77, 85, 93)
       .bulletin
         padding: 18px 18px 0
         .title
@@ -148,33 +226,62 @@
             line-height: 24px
             font-size: 12px
             color: rgb(240, 20, 20)
-      .support
-        .support-item
-          padding: 16px 12px
+        .support
+          .support-item
+            padding: 16px 12px
+            font-size: 0
+            border-1px-top(rgba(7, 17, 27, .1))
+            .icon
+              display: inline-block
+              vertical-align: top
+              width: 16px
+              height: 16px
+              background-size: 16px
+              background-repeat: no-repeat
+              &.decrease
+                bg-img('decrease_4')
+              &.discount
+                bg-img('discount_4')
+              &.guarantee
+                bg-img('guarantee_4')
+              &.invoice
+                bg-img('special_4')
+              &.special
+                bg-img('special_4')
+            .text
+              display: inline-block
+              vertical-align: top
+              margin-left: 6px
+              line-height: 16px
+              font-size: 12px
+              color: rgb(7, 17, 27)
+      .pics
+        padding: 18px 0 18px 18px
+        .title
+          line-height: 14px
+          font-size: 14px
+          color: rgb(7, 17, 27)
+        .pics-wrapper
+          width: 100%
+          overflow: hidden
+          margin-top: 12px
           font-size: 0
-          border-1px-top(rgba(7, 17, 27, .1))
-          .icon
-            display: inline-block
-            vertical-align: top
-            width: 16px
-            height: 16px
-            background-size: 16px
-            background-repeat: no-repeat
-            &.decrease
-              bg-img('decrease_4')
-            &.discount
-              bg-img('discount_4')
-            &.guarantee
-              bg-img('guarantee_4')
-            &.invoice
-              bg-img('special_4')
-            &.special
-              bg-img('special_4')
-          .text
-            display: inline-block
-            vertical-align: top
-            margin-left: 6px
+          white-space: nowrap
+          .pics-list
+            .pics-item
+              display: inline-block
+              margin-right: 6px
+      .info
+        padding: 18px 18px 0 18px
+        color: rgb(7, 17, 27)
+        .title
+          line-height: 14px
+          font-size: 14px
+        .info-item-wrapper
+          margin-top: 12px
+          .info-item
+            padding: 16px 12px
             line-height: 16px
             font-size: 12px
-            color: rgb(7, 17, 27)
+            border-1px-top(rgba(7, 17, 27, .1))
 </style>

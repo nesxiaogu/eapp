@@ -14,6 +14,7 @@
 
 <script>
   import header from './components/header/header.vue';
+  import {urlParse} from './common/js/util'
 
   const ERR_NO = 0;
 
@@ -24,13 +25,19 @@
     },
     data() {
       return {
-        seller: {}
+        seller: {
+          id: (() => {
+            let queryParams = urlParse();
+            return queryParams.id;
+          })()
+        }
       };
     },
     created() {
       this.$http.get('/api/seller').then((response) => { // 头部商家数据获取
         if(response.data.errno === ERR_NO) {
-          this.seller = response.data.data;
+          // this.seller = response.data.data;
+          this.seller = Object.assign({}, this.seller, response.data.data);
           this.$nextTick(() => {
             this.Event.$emit('ready', '完成了');
           });
