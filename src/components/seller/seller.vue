@@ -99,6 +99,25 @@
             click: true
           });
         }
+      },
+      _initPicScroll() {
+        if(this.seller.pics) { // 有商家图片
+          if(!this.$refs.picsList.style.width) { // 是否已经计算高度
+            // 计算存放图片盒子的宽度
+            let picWidth = 120;
+            let margin = 6;
+            let width = (picWidth + margin) * this.seller.pics.length - 6;
+            this.$refs.picsList.style.width = width + 'px';
+          }
+          if(this.picScroll) {
+            this.picScroll.refresh();
+          }else {
+            this.picScroll = new BScroll(this.$refs.picsWrapper, {
+              scrollX: true,
+              enterPassthrough: 'vertical'
+            });
+          }
+        }
       }
     },
     props: {
@@ -118,29 +137,13 @@
     mounted() {
       this.$nextTick(() => {
         this._initScroll();
+        this._initPicScroll();
       });
       this.Event.$on('ready', () => {
         this.$nextTick(() => {
           this._initScroll();
+          this._initPicScroll();
         });
-
-        // 计算存放图片盒子的宽度
-        if(this.seller.pics) { // 有商家图片
-          let picWidth = 120;
-          let margin = 6;
-          let width = (picWidth + margin) * this.seller.pics.length - 6;
-          this.$refs.picsList.style.width = width + 'px';
-          this.$nextTick(() => {
-            if(this.picScroll) {
-              this.picScroll.refresh();
-            }else {
-              this.picScroll = new BScroll(this.$refs.picsWrapper, {
-                scrollX: true,
-                enterPassthrough: 'vertical'
-              });
-            }
-          });
-        }
       });
     }
   };
