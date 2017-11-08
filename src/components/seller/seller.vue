@@ -90,6 +90,15 @@
           this.favorite = !this.favorite;
           saveToLocal(this.seller.id, 'favorite', this.favorite);
         }
+      },
+      _initScroll() {
+        if(this.scroll) {
+          this.scroll.refresh();
+        }else {
+          this.scroll = new BScroll(this.$refs.seller, {
+            click: true
+          });
+        }
       }
     },
     props: {
@@ -107,14 +116,13 @@
       }
     },
     mounted() {
+      this.$nextTick(() => {
+        this._initScroll();
+      });
       this.Event.$on('ready', () => {
-        if(this.scroll) {
-          this.scroll.refresh();
-        }else {
-          this.scroll = new BScroll(this.$refs.seller, {
-            click: true
-          });
-        }
+        this.$nextTick(() => {
+          this._initScroll();
+        });
 
         // 计算存放图片盒子的宽度
         if(this.seller.pics) { // 有商家图片
